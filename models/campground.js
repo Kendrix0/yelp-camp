@@ -13,6 +13,7 @@ ImageSchema.virtual('thumbnail').get(function () {
 
 const opts = { toJSON: { virtuals: true } };
 
+// Campground model
 const CampgroundSchema = new Schema({
     title: String,
     images: [ImageSchema],
@@ -50,6 +51,7 @@ CampgroundSchema.virtual('properties.popUpMarkup').get(function () {
     <p>${this.description.substring(0, 20)}...</p>`
 });
 
+// If a campground is deleted, also delete all reviews associated with it
 CampgroundSchema.post('findOneAndDelete', async function (doc) {
     if (doc) {
         await Review.deleteMany({
@@ -59,5 +61,5 @@ CampgroundSchema.post('findOneAndDelete', async function (doc) {
         })
     }
 })
-
+// Compiles Campground model based on the defined schema
 module.exports = mongoose.model('Campground', CampgroundSchema)

@@ -1,3 +1,4 @@
+// Defines our API functions for the Review model
 const Campground = require('../models/campground');
 const Review = require('../models/review');
 

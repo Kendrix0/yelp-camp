@@ -1,3 +1,4 @@
+// Defines our API functions for the Campground model
 const Campground = require('../models/campground');
 const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 const mapBoxToken = process.env.MAPBOX_TOKEN;
@@ -7,6 +8,12 @@ const { cloudinary } = require('../cloudinary');
 module.exports.index = async (req, res) => {
     const campgrounds = await Campground.find({});
     res.render('campgrounds/index', { campgrounds });
+}
+
+module.exports.userIndex = async (req, res) => {
+    const { user } = req
+    const campgrounds = await Campground.find({ author: user });
+    res.render('campgrounds/mine', { campgrounds });
 }
 
 module.exports.renderNewForm = (req, res) => {
@@ -59,6 +66,7 @@ module.exports.updateCampground = async (req, res) => {
     }).send();
     const { id } = req.params
     const campground = await Campground.findByIdAndUpdate(id, { ...req.body.campground });
+    // Adds images if included in update
     if (req.files.length > 0) {
         const imgs = req.files.map(f => ({ url: f.path, filename: f.filename }))
         campground.images.push(...imgs);

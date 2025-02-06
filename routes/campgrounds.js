@@ -7,14 +7,13 @@ const multer = require('multer');
 const { storage } = require('../cloudinary');
 const upload = multer({ storage });
 
-// const Campground = require('../models/campground');
-
 router.route('/')
     .get(catchAsync(campgrounds.index))
     .post(isLoggedIn, upload.array('image'), validateCampground, catchAsync(campgrounds.createCampground))
 
 
 router.get('/new', isLoggedIn, campgrounds.renderNewForm);
+router.get('/mine', isLoggedIn, catchAsync(campgrounds.userIndex));
 
 router.route('/:id')
     .get(catchAsync(campgrounds.showCampground))
@@ -22,6 +21,5 @@ router.route('/:id')
     .delete(isLoggedIn, isAuthor, catchAsync(campgrounds.destroyCampground))
 
 router.get('/:id/edit', isLoggedIn, isAuthor, catchAsync(campgrounds.renderEditForm));
-
 
 module.exports = router;

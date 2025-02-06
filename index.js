@@ -1,47 +1,60 @@
 if (process.env.NODE_ENV !== "production") {
     require('dotenv').config();
 }
-
+// Router for API requests
 const express = require('express');
+// For defining component paths
 const path = require('path');
+// Object modeling for MongoDB
 const mongoose = require('mongoose');
 const ejsMate = require('ejs-mate');
+// Track... sessions. Cookies to track is user is logged in
 const session = require('express-session');
+// Single-use notifications
 const flash = require('connect-flash');
 const methodOverride = require('method-override');
 const ExpressError = require('./utils/ExpressError');
+// Authentication base
 const passport = require('passport');
+// Authentication strategy (username & password)
 const LocalStrategy = require('passport-local');
+// Import User model
 const User = require('./models/user')
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
-
+// Import predefined routes for each model
 const userRoutes = require('./routes/users');
 const campgroundRoutes = require('./routes/campgrounds');
 const reviewRoutes = require('./routes/reviews')
 const MongoStore = require('connect-mongo');
 
+// Define where the database is located
 const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp';
-
+mongoose.set('strictQuery',true);
 mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });
 
+// Notify of connection success or failure
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 db.once("open", () => {
     console.log("Database connected");
 });
 
+// Initialize Express
 const app = express();
 
+// Define view engine as embedded JavaScript and the directory to use.
 app.engine('ejs', ejsMate);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Middleware to parse request body
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+// Define path to locate static assets
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(mongoSanitize({
     replaceWith: '_'
@@ -139,7 +152,7 @@ app.use((req, res, next) => {
     next();
 })
 
-
+// Use predefined routes for User, Campgrounds, and Reviews which include our middleware etc
 app.use('/', userRoutes);
 app.use('/campgrounds', campgroundRoutes);
 app.use('/campgrounds/:id/reviews', reviewRoutes);
